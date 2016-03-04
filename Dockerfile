@@ -15,6 +15,8 @@ RUN a2dissite 000-default && a2ensite self-service-password
 
 # This is where configuration goes
 ADD assets/config.inc.php /usr/share/self-service-password/conf/config.inc.php
+ADD assets/devsu-logo.png /usr/share/self-service-password/style/ltb-logo.png
+ADD assets/styles.css /usr/share/self-service-password/style/styles.css
 
 # Start Apache2 as runit service
 RUN mkdir /etc/service/apache2

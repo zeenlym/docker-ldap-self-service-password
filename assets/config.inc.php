@@ -72,7 +72,7 @@ $hash_options['crypt_salt_prefix'] = "$6$";
 # Local password policy
 # This is applied before directory password policy
 # Minimal length
-$pwd_min_length = 0;
+$pwd_min_length = 6;
 # Maximal length
 $pwd_max_length = 0;
 # Minimal lower characters
@@ -111,7 +111,7 @@ $who_change_password = "user";
 # Use questions/answers?
 # true (default)
 # false
-$use_questions = true;
+$use_questions = false;
 
 # Answer attribute should be hidden to users!
 $answer_objectClass = "extensibleObject";
@@ -142,7 +142,7 @@ $notify_on_change = false;
 
 ## SMS
 # Use sms
-$use_sms = true;
+$use_sms = false;
 # GSM number attribute
 $sms_attribute = "mobile";
 # Partially hide number
@@ -189,9 +189,9 @@ $recaptcha_publickey = "";
 $recaptcha_privatekey = "";
 # Customize theme (see http://code.google.com/intl/de-DE/apis/recaptcha/docs/customization.html)
 # Examples: red, white, blackglass, clean
-$recaptcha_theme = "white";
+$recaptcha_theme = "clean";
 # Force HTTPS for recaptcha HTML code
-$recaptcha_ssl = false;
+$recaptcha_ssl = true;
 
 ## Default action
 # change
