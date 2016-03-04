@@ -24,6 +24,7 @@
 #==============================================================================
 # LDAP
 $ldap_url = "ldap://localhost";
+$ldap_starttls = false;
 $ldap_binddn = "cn=manager,dc=example,dc=com";
 $ldap_bindpw = "secret";
 $ldap_base = "dc=example,dc=com";
@@ -39,11 +40,16 @@ $ad_mode = false;
 $ad_options['force_unlock'] = false;
 # Force user change password at next login
 $ad_options['force_pwd_change'] = false;
+# Allow user with expired password to change password
+$ad_options['change_expired_password'] = false;
 
 # Samba mode
 # true: update sambaNTpassword and sambaPwdLastSet attributes too
 # false: just update the password
 $samba_mode = false;
+# Set password min/max age in Samba attributes
+#$samba_options['min_age'] = 5;
+#$samba_options['max_age'] = 45;
 
 # Shadow options - require shadowAccount objectClass
 # Update shadowLastChange
@@ -56,8 +62,12 @@ $shadow_options['update_shadowLastChange'] = false;
 # MD5
 # CRYPT
 # clear (the default)
+# auto (will check the hash of current password)
 # This option is not used with ad_mode = true
 $hash = "clear";
+
+# Prefix to use for salt with CRYPT
+$hash_options['crypt_salt_prefix'] = "$6$";
 
 # Local password policy
 # This is applied before directory password policy
@@ -135,6 +145,8 @@ $notify_on_change = false;
 $use_sms = true;
 # GSM number attribute
 $sms_attribute = "mobile";
+# Partially hide number
+$sms_partially_hide_number = true;
 # Send SMS mail to address
 $smsmailto = "{sms_attribute}@service.provider.com";
 # Subject when sending email to SMTP to SMS provider
@@ -191,5 +203,8 @@ $default_action = "change";
 # They can also be defined in lang/ files
 #$messages['passwordchangedextramessage'] = NULL;
 #$messages['changehelpextramessage'] = NULL;
+
+# Launch a posthook script after successful password change
+#$posthook = "/usr/share/self-service-password/posthook.sh";
 
 ?>

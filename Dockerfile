@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install Apache2, PHP and LTB ssp
 RUN apt-get update && apt-get install -y apache2 php5 php5-mcrypt php5-ldap && apt-get clean
-RUN curl http://tools.ltb-project.org/attachments/download/499/self-service-password_0.8-1_all.deb > self-service-password.deb && dpkg -i self-service-password.deb ; rm -f self-service-password.deb
+RUN curl http://tools.ltb-project.org/attachments/download/801/self-service-password_0.9-1_all.deb > self-service-password.deb && dpkg -i self-service-password.deb ; rm -f self-service-password.deb
 
 # Configure self-service-password site
 RUN ln -s self-service-password /etc/apache2/sites-available/self-service-password.conf
