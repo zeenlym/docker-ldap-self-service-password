@@ -23,13 +23,13 @@
 # Configuration
 #==============================================================================
 # LDAP
-$ldap_url = "ldap://localhost";
+$ldap_url = "ldap://{{LDAP_HOST}}";
 $ldap_starttls = false;
-$ldap_binddn = "cn=manager,dc=example,dc=com";
-$ldap_bindpw = "secret";
-$ldap_base = "dc=example,dc=com";
-$ldap_login_attribute = "uid";
-$ldap_fullname_attribute = "cn";
+$ldap_binddn = "{{LDAP_USER}}";
+$ldap_bindpw = "{{LDAP_PASS}}";
+$ldap_base = "{{LDAP_BASE}}";
+$ldap_login_attribute = "{{LSSP_ATTR_LOGIN}}";
+$ldap_fullname_attribute = "{{LSSP_ATTR_FN}}";
 $ldap_filter = "(&(objectClass=person)($ldap_login_attribute={login}))";
 
 # Active Directory mode
@@ -64,7 +64,7 @@ $shadow_options['update_shadowLastChange'] = false;
 # clear (the default)
 # auto (will check the hash of current password)
 # This option is not used with ad_mode = true
-$hash = "clear";
+$hash = "{{LSSP_HASH_METHOD}}";
 
 # Prefix to use for salt with CRYPT
 $hash_options['crypt_salt_prefix'] = "$6$";
@@ -95,23 +95,23 @@ $pwd_complexity = 0;
 # always
 # never
 # onerror
-$pwd_show_policy = "never";
+$pwd_show_policy = "onerror";
 # Position of password policy constraints message:
 # above - the form
 # below - the form
-$pwd_show_policy_pos = "above";
+$pwd_show_policy_pos = "below";
 
 # Who changes the password?
 # Also applicable for question/answer save
 # user: the user itself
 # manager: the above binddn
-$who_change_password = "user";
+$who_change_password = "manager";
 
 ## Questions/answers
 # Use questions/answers?
 # true (default)
 # false
-$use_questions = true;
+$use_questions = false;
 
 # Answer attribute should be hidden to users!
 $answer_objectClass = "extensibleObject";
@@ -124,7 +124,7 @@ $answer_attribute = "info";
 # Use tokens?
 # true (default)
 # false
-$use_tokens = true;
+$use_tokens = {{LSSP_MAIL_SUPPORT}};
 # Crypt tokens?
 # true (default)
 # false
@@ -134,15 +134,15 @@ $token_lifetime = "3600";
 
 ## Mail
 # LDAP mail attribute
-$mail_attribute = "mail";
+$mail_attribute = "{{LSSP_ATTR_MAIL}}";
 # Who the email should come from
-$mail_from = "admin@example.com";
+$mail_from = "{{SMTP_FROM}}";
 # Notify users anytime their password is changed
 $notify_on_change = false;
 
 ## SMS
 # Use sms
-$use_sms = true;
+$use_sms = false;
 # GSM number attribute
 $sms_attribute = "mobile";
 # Partially hide number

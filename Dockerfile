@@ -1,29 +1,46 @@
-FROM phusion/baseimage:0.9.16
-
-# Use baseimage-docker's init system.
-CMD ["/sbin/my_init"]
+FROM php:5-apache
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV SCRIPT_DIR /opt
 
 # Install Apache2, PHP and LTB ssp
 RUN apt-get update && \
-    apt-get install -y apache2 php5 php5-mcrypt php5-ldap mailutils msmtp && \
-    apt-get clean
-RUN curl http://tools.ltb-project.org/attachments/download/801/self-service-password_0.9-1_all.deb > self-service-password.deb && \
-    dpkg -i self-service-password.deb ; rm -f self-service-password.deb
+    apt-get install -y \
+        msmtp sudo gettext-base \
+        libldap2-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libmcrypt-dev \
+        libpng12-dev && \
+    apt-get clean && \
+    ln -fs /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/ && \
+    docker-php-ext-install -j$(nproc) iconv mcrypt && \
+    docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
+    docker-php-ext-install -j$(nproc) gd && \
+    docker-php-ext-install ldap
 
-# Configure self-service-password site
-RUN ln -s self-service-password /etc/apache2/sites-available/self-service-password.conf
-RUN ln -s ../../mods-available/mcrypt.ini /etc/php5/apache2/conf.d/20-mcrypt.ini
+RUN curl http://tools.ltb-project.org/attachments/download/801/self-service-password_0.9-1_all.deb > self-service-password.deb && \
+    dpkg -i --force-depends self-service-password.deb ; rm -f self-service-password.deb
+
+# Add LSSP's Apache-config for site
+ADD ["assets/config/apache2/vhost.conf", "/etc/apache2/sites-available/self-service-password.conf"]
+# Add LSSP's config template
+ADD ["assets/config/lssp/config.inc.php", "/usr/share/self-service-password/conf/config.inc.php.dist"]
+# Add MSMTP's config for PHP
+ADD ["assets/config/php/php-sendmail.ini", "/usr/local/etc/php/conf.d"]
+# Add MSMTP's config
+ADD ["assets/config/msmtp/msmtprc", "/etc/msmtprc.dist"]
+
+# Enable LSSP in Apache Web-Server
 RUN a2dissite 000-default && \
     a2ensite self-service-password
 
-# This is where configuration goes
-ADD assets/config.inc.php /usr/share/self-service-password/conf/config.inc.php
-
-# Start Apache2 as runit service
-RUN mkdir /etc/service/apache2
-ADD assets/apache2.sh /etc/service/apache2/run
+# Add scripts (i.e. entrypoint)
+ADD ["assets/scripts/*", "${SCRIPT_DIR}/"]
+RUN chmod -R u+x ${SCRIPT_DIR}
 
 EXPOSE 80
+
+ENTRYPOINT ["/opt/entrypoint.sh"]
+CMD ["app:start"]
 

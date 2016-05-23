@@ -1,0 +1,113 @@
+#!/bin/bash
+set -e
+. ${SCRIPT_DIR}/env-defaults
+
+DIST_SUFFIX='.dist'
+
+FILE_LSSP_CONFIG='/usr/share/self-service-password/conf/config.inc.php'
+FILE_MSMTP_CONFIG='/etc/msmtprc'
+
+## Replace placeholders with values
+# $1: file with placeholders to replace
+# $x: placeholders to replace
+update_template() {
+  local FILE="${1?missing argument}"
+  shift
+
+  [[ ! -f ${FILE} ]] && return 1
+
+  local VARIABLES=($@)
+  local USR=$(stat -c %U "${FILE}")
+  local tmp_file="$(mktemp)"
+  cp -a "${FILE}" "${tmp_file}"
+
+  local variable
+  for variable in ${VARIABLES[@]}; do
+    # Keep the compatibilty: {{VAR}} => ${VAR}
+    sed -ri "s/[{]{2}$variable[}]{2}/\${$variable}/g" "${tmp_file}"
+  done
+
+  # Replace placeholders
+  (
+    export ${VARIABLES[@]}
+    local IFS=":"; sudo -HEu ${USR} envsubst "${VARIABLES[*]/#/$}" < "${tmp_file}" > "${FILE}"
+  )
+  rm -f ${tmp_file}
+}
+
+finalize_parameters() {
+  # is a ldap and/or mail server linked?
+  if [[ -n ${LDAP_PORT_389_TCP_ADDR} ]]; then
+    echo "Prepare LSSP"
+
+    dc_string=""
+    IFS="."; declare -a dc_parts=($LDAP_ENV_SLAPD_DOMAIN)
+    for dc_part in "${dc_parts[@]}"; do
+      dc_string="$dc_string,dc=$dc_part"
+    done
+    dc_string=${dc_string:1}
+
+    LDAP_BASE="${LDAP_BASE:-${dc_string}}"
+    LDAP_HOST=${LDAP_HOST:-${LDAP_PORT_389_TCP_ADDR}}
+    LDAP_PORT=${LDAP_PORT:-${LDAP_PORT_389_TCP_PORT}}
+
+    # support for linked sameersbn/mysql image
+    LDAP_USER="cn=admin,${LDAP_BASE}"
+    LDAP_PASS=${LDAP_PASS:-${LDAP_ENV_SLAPD_PASSWORD}}
+  fi
+
+  if [[ -z ${LDAP_HOST} ]]; then
+    echo
+    echo "ERROR: "
+    echo "  Please configure the LDAP connection."
+    echo "  Cannot continue without a LDAP server. Aborting..."
+    echo
+    return 1
+  fi
+
+  if [[ -n ${MAIL_PORT_25_TCP_ADDR} ]]; then
+    echo "Prepare MAIL"
+
+    SMTP_HOST=${SMTP_HOST:-${MAIL_PORT_25_TCP_ADDR}}
+    SMTP_PORT=${SMTP_PORT:-${MAIL_PORT_25_TCP_PORT}}
+    LSSP_MAIL_SUPPORT=true
+  else
+    LSSP_MAIL_SUPPORT=false
+  fi
+}
+
+configure_lssp() {
+  echo "Configuring LSSP"
+
+  cp -v "${FILE_LSSP_CONFIG}${DIST_SUFFIX}" "${FILE_LSSP_CONFIG}"
+
+  update_template "${FILE_LSSP_CONFIG}" \
+    LDAP_HOST \
+    LDAP_PORT \
+    LDAP_USER \
+    LDAP_PASS \
+    LDAP_BASE \
+    LSSP_ATTR_LOGIN LSSP_ATTR_FN LSSP_ATTR_MAIL \
+    LSSP_HASH_METHOD \
+    SMTP_FROM \
+    LSSP_MAIL_SUPPORT
+}
+
+configure_mail() {
+  if [[ -n ${SMTP_HOST} ]]; then
+    echo "Configuring MSMTP"
+
+    cp -v "${FILE_MSMTP_CONFIG}${DIST_SUFFIX}" "${FILE_MSMTP_CONFIG}"
+
+    update_template "${FILE_MSMTP_CONFIG}" \
+      SERVER_HOSTNAME \
+      SMTP_HOST \
+      SMTP_PORT \
+      SMTP_USER \
+      SMTP_PASS \
+      SMTP_DOMAIN
+  else
+    echo "Mail Service not configured"
+  fi
+}
+
