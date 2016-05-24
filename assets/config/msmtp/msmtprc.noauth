@@ -2,19 +2,18 @@
 defaults
 
 protocol smtp
-domain {{SERVER_HOSTNAME}}
 
-auth off
-tls off
+tls {{SMTP_TLS}}
+tls_certcheck off
 
-auto_from on
+auto_from off
 syslog on
-maildomain {{SERVER_HOSTNAME}}
 dsn_notify off
 dsn_return off
 
 # Default Account
 account default
+auth off
 host {{SMTP_HOST}}
 port {{SMTP_PORT}}
 

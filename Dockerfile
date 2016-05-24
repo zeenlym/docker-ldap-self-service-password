@@ -29,7 +29,8 @@ ADD ["assets/config/lssp/config.inc.php", "/usr/share/self-service-password/conf
 # Add MSMTP's config for PHP
 ADD ["assets/config/php/php-sendmail.ini", "/usr/local/etc/php/conf.d"]
 # Add MSMTP's config
-ADD ["assets/config/msmtp/msmtprc", "/etc/msmtprc.dist"]
+ADD ["assets/config/msmtp/msmtprc.noauth", "/etc/msmtprc.noauth.dist"]
+ADD ["assets/config/msmtp/msmtprc.auth", "/etc/msmtprc.auth.dist"]
 
 # Enable LSSP in Apache Web-Server
 RUN a2dissite 000-default && \

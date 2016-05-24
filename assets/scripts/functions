@@ -2,7 +2,7 @@
 set -e
 . ${SCRIPT_DIR}/env-defaults
 
-DIST_SUFFIX='.dist'
+DIST_SUFFIX='dist'
 
 FILE_LSSP_CONFIG='/usr/share/self-service-password/conf/config.inc.php'
 FILE_MSMTP_CONFIG='/etc/msmtprc'
@@ -70,6 +70,17 @@ finalize_parameters() {
 
     SMTP_HOST=${SMTP_HOST:-${MAIL_PORT_25_TCP_ADDR}}
     SMTP_PORT=${SMTP_PORT:-${MAIL_PORT_25_TCP_PORT}}
+    SMTP_TLS=${SMTP_TLS:-off}
+
+    # Enable Auth
+    if [[ -n ${SMTP_USER} && -n ${SMTP_PASS} ]]; then
+      echo "  ... with AUTH"
+      SMTP_TYPE=auth
+    else
+      echo "  ... without AUTH"
+      SMTP_TYPE=noauth
+    fi
+
     LSSP_MAIL_SUPPORT=true
   else
     LSSP_MAIL_SUPPORT=false
@@ -79,7 +90,7 @@ finalize_parameters() {
 configure_lssp() {
   echo "Configuring LSSP"
 
-  cp -v "${FILE_LSSP_CONFIG}${DIST_SUFFIX}" "${FILE_LSSP_CONFIG}"
+  cp -v "${FILE_LSSP_CONFIG}.${DIST_SUFFIX}" "${FILE_LSSP_CONFIG}"
 
   update_template "${FILE_LSSP_CONFIG}" \
     LDAP_HOST \
@@ -97,7 +108,7 @@ configure_mail() {
   if [[ -n ${SMTP_HOST} ]]; then
     echo "Configuring MSMTP"
 
-    cp -v "${FILE_MSMTP_CONFIG}${DIST_SUFFIX}" "${FILE_MSMTP_CONFIG}"
+    cp -v "${FILE_MSMTP_CONFIG}.${SMTP_TYPE}.${DIST_SUFFIX}" "${FILE_MSMTP_CONFIG}"
 
     update_template "${FILE_MSMTP_CONFIG}" \
       SERVER_HOSTNAME \
@@ -105,6 +116,7 @@ configure_mail() {
       SMTP_PORT \
       SMTP_USER \
       SMTP_PASS \
+      SMTP_TLS \
       SMTP_DOMAIN
   else
     echo "Mail Service not configured"
