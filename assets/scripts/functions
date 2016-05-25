@@ -39,7 +39,7 @@ update_template() {
 finalize_parameters() {
   # is a ldap and/or mail server linked?
   if [[ -n ${LDAP_PORT_389_TCP_ADDR} ]]; then
-    echo "Prepare LSSP"
+    echo "Auto-Conf LSSP"
 
     dc_string=""
     IFS="."; declare -a dc_parts=($LDAP_ENV_SLAPD_DOMAIN)
@@ -67,13 +67,17 @@ finalize_parameters() {
   fi
 
   if [[ -n ${MAIL_PORT_25_TCP_ADDR} ]]; then
-    echo "Prepare MAIL"
+    echo "Auto-Conf MAIL-Host"
 
     SMTP_HOST=${SMTP_HOST:-${MAIL_PORT_25_TCP_ADDR}}
     SMTP_PORT=${SMTP_PORT:-${MAIL_PORT_25_TCP_PORT}}
-    SMTP_TLS=${SMTP_TLS:-off}
+  fi
 
-    # Enable Auth
+  if [[ -n ${SMTP_HOST} && -n ${SMTP_PORT} ]]; then
+    echo "Enable MAIL"
+    LSSP_MAIL_SUPPORT=true
+
+    # Enable Authentication, if Username and Password are provided
     if [[ -n ${SMTP_USER} && -n ${SMTP_PASS} ]]; then
       echo "  ... with AUTH"
       SMTP_TYPE=auth
@@ -82,8 +86,12 @@ finalize_parameters() {
       SMTP_TYPE=noauth
     fi
 
-    LSSP_MAIL_SUPPORT=true
+    if [[ ${SMTP_TLS} != "on" && ${SMTP_TLS} != "off" ]]; then
+      echo "ERROR: SMTP_TLS must be \"on\" or \"off\""
+      return 1;
+    fi
   else
+    echo "Disable MAIL"
     LSSP_MAIL_SUPPORT=false
   fi
 
