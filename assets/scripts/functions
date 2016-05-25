@@ -4,6 +4,7 @@ set -e
 
 DIST_SUFFIX='dist'
 
+FILE_VHOST_CONFIG='/etc/apache2/sites-available/self-service-password.conf'
 FILE_LSSP_CONFIG='/usr/share/self-service-password/conf/config.inc.php'
 FILE_MSMTP_CONFIG='/etc/msmtprc'
 
@@ -85,6 +86,8 @@ finalize_parameters() {
   else
     LSSP_MAIL_SUPPORT=false
   fi
+
+  VIRTUAL_SUBDIR=${VIRTUAL_SUBDIR:-lssp}
 }
 
 configure_lssp() {
@@ -102,6 +105,9 @@ configure_lssp() {
     LSSP_HASH_METHOD \
     SMTP_FROM \
     LSSP_MAIL_SUPPORT
+
+  update_template "${FILE_VHOST_CONFIG}" \
+    VIRTUAL_SUBDIR
 }
 
 configure_mail() {
