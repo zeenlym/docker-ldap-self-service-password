@@ -1,6 +1,69 @@
-# docker-ldap-self-service-password
+# LDAP Toolbox - Self-Service-Password
 
-A dockerfile for the LDAP ToolBox (LTB) Self Service Password utility, which is a PHP application that allows users to change their password in an LDAP directory. See http://ltb-project.org/wiki/documentation/self-service-password
+> Originally developed by "LTB-Project"
+
+A PHP-based web-application (running on an Apache Webserver) that allows users to change their password in an LDAP directory. The application is developed by the LTB-Project (see http://ltb-project.org/wiki/documentation/self-service-password).
+
+Configuration is performed automatically during each start-up to link to the appropriate LDAP- and/or Mail-Containers.
+
+**NOTE:** On purpose, there is no secured channel (TLS/SSL) to the OpenLDAP-Server, because its service will never be exposed to the world.
+
+## Requirements
+
+- Docker (>= 1.9.0)
+- OpenLDAP-Server (required)
+- Mail-Server (optional)
+
+## Provided Resouces
+
+The service provides the following network ports and filesystems.
+
+### Exposed Ports
+
+- `80` : Web-Server (unsecure)
+
+### Exposed Filesystems ###
+
+None
+
+## Usage ##
+
+The created container is configured automatically by the `entrypoint`-script during **each** run.
+
+During this **each** run the following environment variables are evaluated:
+
+OpenLDAP-Server (required):
+
+- `LDAP_BASE` (default: empty)
+  - LDAP-Domain to search for user-entries
+  - Provide in dotted (`.`) notation (i.e. domain.com)
+- `LDAP_HOST` (default: empty)
+  - LDAP-Server's hostname or IP-address
+- `LDAP_PORT` (default: 389)
+  - LDAP-Server's port
+- `LDAP_USER` (default: cn=admin,${LDAP_BASE})
+  - Complete DN of the admin user, which is allowed to change user passwords.
+- `LDAP_PASS`
+  - Password of the admin user
+
+Mail-Server (optional):
+
+- `SMTP_HOST` (default: empty)
+  - Mail-Server's hostname or IP-address
+- `SMTP_PORT` (default: 25)
+  - Mail-Server's port
+- `SMTP_USER` (default: empty)
+  - Username for sender's mail-account
+  - If omitted, authentication is disabled
+- `SMTP_PASS` (default: empty)
+  - Password for sender's mail-account
+  - If omitted, authentication is disabled
+- `SMTP_FROM` (default: `root(at)$HOSTNAME`)
+  - The address from which the password notification is coming from
+- `SMTP_TLS` (default: off)
+  - Enable TLS connection ("on" OR "off")
+
+> If Mail-Server is not set, Password-Reset will be disabled in Web-Interface!
 
 ## Quick Start
 You can either run the image and link it to an external configuration file, or you can rebuild your own standalone image.
@@ -32,7 +95,7 @@ The examples above expose service on port `8765`, so you can point your browser 
 git clone https://github.com/devsu/docker-ldap-self-service-password.git
 cd docker-ldap-self-service-password
 ```
-Edit `assets/config.inc.php` according to your local settings, then (re)build image with: 
+Edit `assets/config.inc.php` according to your local settings, then (re)build image with:
 ```bash
 docker build -t="$USER/ldap-self-service-password" .
 ```
@@ -68,4 +131,3 @@ Add this into `config.inc.php` to disable all certificate validation:
 ```php
 putenv('LDAPTLS_REQCERT=never');
 ```
-
