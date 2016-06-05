@@ -39,6 +39,7 @@ update_template() {
 finalize_parameters() {
   # is a ldap and/or mail server linked?
   if [[ -n ${LDAP_PORT_389_TCP_ADDR} ]]; then
+    # Used, when the Docker legacy container link is used (Docker-Compose V1)
     echo "Auto-Conf LSSP"
 
     dc_string=""
@@ -48,13 +49,34 @@ finalize_parameters() {
     done
     dc_string=${dc_string:1}
 
-    LDAP_BASE="${LDAP_BASE:-${dc_string}}"
-    LDAP_HOST=${LDAP_HOST:-${LDAP_PORT_389_TCP_ADDR}}
-    LDAP_PORT=${LDAP_PORT:-${LDAP_PORT_389_TCP_PORT}}
+    LDAP_BASE="${dc_string}"
+    LDAP_HOST=${LDAP_PORT_389_TCP_ADDR}
+    LDAP_PORT=${LDAP_PORT_389_TCP_PORT}
 
     # support for linked sameersbn/mysql image
     LDAP_USER="cn=admin,${LDAP_BASE}"
-    LDAP_PASS=${LDAP_PASS:-${LDAP_ENV_SLAPD_PASSWORD}}
+    LDAP_PASS=${LDAP_ENV_SLAPD_PASSWORD}
+  else
+    # Used, when no container is linked, or Docker-Compose V2 is used!
+    echo "Pre-Conf LSSP"
+   
+    if [[ -n ${SLAPD_DOMAIN} && -n ${SLAPD_PASSWORD} ]]; then
+      echo "Use SLAPD-variables ..."
+      LDAP_DOMAIN=${SLAPD_DOMAIN}
+      LDAP_PASS=${SLAPD_PASSWORD}
+    fi
+
+    dc_string=""
+    IFS="."; declare -a dc_parts=($LDAP_DOMAIN)
+    for dc_part in "${dc_parts[@]}"; do
+      dc_string="$dc_string,dc=$dc_part"
+    done
+    dc_string=${dc_string:1}
+
+    LDAP_BASE="${LDAP_BASE:-${dc_string}}"
+
+    # support for linked sameersbn/mysql image
+    LDAP_USER="cn=admin,${LDAP_BASE}"
   fi
 
   if [[ -z ${LDAP_HOST} ]]; then
@@ -63,14 +85,16 @@ finalize_parameters() {
     echo "  Please configure the LDAP connection."
     echo "  Cannot continue without a LDAP server. Aborting..."
     echo
+    echo "Current Environment:"
+    env
     return 1
   fi
 
   if [[ -n ${MAIL_PORT_25_TCP_ADDR} ]]; then
     echo "Auto-Conf MAIL-Host"
 
-    SMTP_HOST=${SMTP_HOST:-${MAIL_PORT_25_TCP_ADDR}}
-    SMTP_PORT=${SMTP_PORT:-${MAIL_PORT_25_TCP_PORT}}
+    SMTP_HOST=${MAIL_PORT_25_TCP_ADDR}
+    SMTP_PORT=${MAIL_PORT_25_TCP_PORT}
   fi
 
   if [[ -n ${SMTP_HOST} && -n ${SMTP_PORT} ]]; then
