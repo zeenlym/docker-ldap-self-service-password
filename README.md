@@ -45,6 +45,8 @@ LDAP Self-Service-Password (optional):
   - LDAP attribute for user's full name
 - `LSSP_ATTR_MAIL` (default: mail)
   - LDAP attribute for user's mail address (required for password-reset support)
+- `LSSP_DEFAULT_ACTION` (default: change)
+  - LSSP default action for changing password (supported are `change`, `sendtoken` or `sendsms`)
 
 OpenLDAP-Server (required):
 
@@ -81,6 +83,18 @@ Mail-Server (optional):
   - Possible Values:
     - `on`: Enable TLS
     - `off`: Disable TLS
+
+reCAPTCHA (optional):
+- `RECAPTCHA_USE` (default: false)
+  - Activate reCAPTCHA feature
+- `RECAPTCHA_PUB_KEY` (default: empty)
+  - reCAPTCHA public key
+- `RECAPTCHA_PRV_KEY` (default: empty)
+  - reCAPTCHA private key
+- `RECAPTCHA_SSL` (default: false)
+  - Enable TLS
+- `RECAPTCHA_THEME` (default: white)
+  - Choose theme
 
 ### Link to a supported LDAP-Container
 
