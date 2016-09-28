@@ -184,20 +184,20 @@ $login_forbidden_chars = "*()&|";
 ## CAPTCHA
 # Use Google reCAPTCHA (http://www.google.com/recaptcha)
 # Go on the site to get public and private key
-$use_recaptcha = false;
-$recaptcha_publickey = "";
-$recaptcha_privatekey = "";
+$use_recaptcha = {{RECAPTCHA_USE}};
+$recaptcha_publickey = "{{RECAPTCHA_PUB_KEY}}";
+$recaptcha_privatekey = "{{RECAPTCHA_PRV_KEY}}";
 # Customize theme (see http://code.google.com/intl/de-DE/apis/recaptcha/docs/customization.html)
 # Examples: red, white, blackglass, clean
-$recaptcha_theme = "white";
+$recaptcha_theme = "{{RECAPTCHA_THEME}}";
 # Force HTTPS for recaptcha HTML code
-$recaptcha_ssl = false;
+$recaptcha_ssl = {{RECAPTCHA_SSL}};
 
 ## Default action
 # change
 # sendtoken
 # sendsms
-$default_action = "change";
+$default_action = "{{LSSP_DEFAULT_ACTION}}";
 
 ## Extra messages
 # They can also be defined in lang/ files
