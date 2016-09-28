@@ -207,4 +207,9 @@ $default_action = "{{LSSP_DEFAULT_ACTION}}";
 # Launch a posthook script after successful password change
 #$posthook = "/usr/share/self-service-password/posthook.sh";
 
+foreach (glob("conf/conf.d/*.php") as $filename)
+{
+    include $filename;
+}
+
 ?>
