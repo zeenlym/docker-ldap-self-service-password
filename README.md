@@ -119,6 +119,37 @@ This will provide the following environment variables:
 - `SMTP_HOST` (by Docker Environment)
 - `SMTP_PORT` (by Docker Environment)
 
+### Advance configuration
+
+If you want to override configuration you can mount volume for `/usr/share/self-service-password/conf/conf.d` and put your conf.php in it.
+
+Password policy
+
+Put this file in local `lssp.d` directory:
+
+> ppolicy.php
+
+```php
+<?php
+$pwd_min_length = 4;
+$pwd_max_length = 24;
+
+$pwd_min_lower = 3;
+$pwd_min_upper = 1;
+$pwd_min_digit = 1;
+$pwd_min_special = 1;
+
+$pwd_special_chars = "^a-zA-Z0-9";
+$pwd_complexity = 4;
+
+$pwd_no_reuse = true;
+
+$pwd_show_policy = "always";
+?>
+```
+
+Then run your container with `--volume ./lssp.d:/usr/share/self-service-password/conf/conf.d`.
+
 ## Start-Up
 
 You can run a container without linked containers:
