@@ -45,6 +45,8 @@ LDAP Self-Service-Password (optional):
   - LDAP attribute for user's full name
 - `LSSP_ATTR_MAIL` (default: mail)
   - LDAP attribute for user's mail address (required for password-reset support)
+- `LSSP_DEFAULT_ACTION` (default: change)
+  - LSSP default action for changing password (supported are `change`, `sendtoken` or `sendsms`)
 
 OpenLDAP-Server (required):
 
@@ -82,6 +84,18 @@ Mail-Server (optional):
     - `on`: Enable TLS
     - `off`: Disable TLS
 
+reCAPTCHA (optional):
+- `RECAPTCHA_USE` (default: false)
+  - Activate reCAPTCHA feature
+- `RECAPTCHA_PUB_KEY` (default: empty)
+  - reCAPTCHA public key
+- `RECAPTCHA_PRV_KEY` (default: empty)
+  - reCAPTCHA private key
+- `RECAPTCHA_SSL` (default: false)
+  - Enable TLS
+- `RECAPTCHA_THEME` (default: white)
+  - Choose theme
+
 ### Link to a supported LDAP-Container
 
 If you have a running OpenLDAP container of the following types
@@ -104,6 +118,37 @@ This will provide the following environment variables:
 
 - `SMTP_HOST` (by Docker Environment)
 - `SMTP_PORT` (by Docker Environment)
+
+### Advance configuration
+
+If you want to override configuration you can mount volume for `/usr/share/self-service-password/conf/conf.d` and put your conf.php in it.
+
+Password policy
+
+Put this file in local `lssp.d` directory:
+
+> ppolicy.php
+
+```php
+<?php
+$pwd_min_length = 4;
+$pwd_max_length = 24;
+
+$pwd_min_lower = 3;
+$pwd_min_upper = 1;
+$pwd_min_digit = 1;
+$pwd_min_special = 1;
+
+$pwd_special_chars = "^a-zA-Z0-9";
+$pwd_complexity = 4;
+
+$pwd_no_reuse = true;
+
+$pwd_show_policy = "always";
+?>
+```
+
+Then run your container with `--volume ./lssp.d:/usr/share/self-service-password/conf/conf.d`.
 
 ## Start-Up
 
