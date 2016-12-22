@@ -9,9 +9,9 @@ SERVER_HOSTNAME=${SERVER_HOSTNAME:-$HOSTNAME}
 ## LDAP
 LDAP_HOST=${LDAP_HOST:-ldap}
 LDAP_PORT=${LDAP_PORT:-389}
-LDAP_USER=${LDAP_USER:-cn=admin,dc=example,dc=com}
-LDAP_PASS=${LDAP_PASS:-admin}
 LDAP_BASE=${LDAP_BASE:-example.com}
+if [ -z ${LDAP_USER} ] ; then LDAP_USER="cn=admin,${LDAP_BASE}"; fi
+LDAP_PASS=${LDAP_PASS:-admin}
 
 ## MAIL
 SMTP_HOST=${SMTP_HOST:-smtp}
