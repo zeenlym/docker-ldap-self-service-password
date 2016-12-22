@@ -54,7 +54,8 @@ finalize_parameters() {
     LDAP_PORT=${LDAP_PORT_389_TCP_PORT}
 
     # support for linked sameersbn/mysql image
-    LDAP_USER="cn=admin,${LDAP_BASE}"
+    # Edit: Disabled because override LDAP_USER external variable
+    # LDAP_USER="cn=admin,${LDAP_BASE}"
     LDAP_PASS=${LDAP_ENV_SLAPD_PASSWORD}
   else
     # Used, when no container is linked, or Docker-Compose V2 is used!
@@ -76,7 +77,8 @@ finalize_parameters() {
     LDAP_BASE="${LDAP_BASE:-${dc_string}}"
 
     # support for linked sameersbn/mysql image
-    LDAP_USER="cn=admin,${LDAP_BASE}"
+    # Edit: Disabled because override LDAP_USER external variable
+    # LDAP_USER="cn=admin,${LDAP_BASE}"
   fi
 
   if [[ -z ${LDAP_HOST} ]]; then
