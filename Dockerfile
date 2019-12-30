@@ -25,8 +25,6 @@ RUN wget -O self-service-password.deb http://ltb-project.org/archives/self-servi
 ADD ["assets/config/apache2/vhost.conf", "/etc/apache2/sites-available/self-service-password.conf"]
 # Add LSSP's config template
 ADD ["assets/config/lssp/config.inc.php", "/usr/share/self-service-password/conf/config.inc.local.php.dist"]
-# Add MSMTP's config for PHP
-#ADD ["assets/config/php/php-sendmail.ini", "/usr/local/etc/php/conf.d"]
 
 # Enable LSSP in Apache Web-Server
 RUN a2dissite 000-default && \
