@@ -23,8 +23,8 @@
 # Configuration
 #==============================================================================
 # LDAP
-$ldap_url = "ldap://{{LDAP_HOST}}";
-$ldap_starttls = false;
+$ldap_url = "{{LDAP_URL}}";
+$ldap_starttls = {{LDAP_STARTTLS}};
 $ldap_binddn = "{{LDAP_USER}}";
 $ldap_bindpw = "{{LDAP_PASS}}";
 $ldap_base = "{{LDAP_BASE}}";
@@ -35,7 +35,7 @@ $ldap_filter = "(&(objectClass=person)($ldap_login_attribute={login}))";
 # Active Directory mode
 # true: use unicodePwd as password field
 # false: LDAPv3 standard behavior
-$ad_mode = false;
+$ad_mode = {{LDAP_AD_MODE}};
 # Force account unlock when password is changed
 $ad_options['force_unlock'] = false;
 # Force user change password at next login
@@ -139,6 +139,18 @@ $mail_attribute = "{{LSSP_ATTR_MAIL}}";
 $mail_from = "{{SMTP_FROM}}";
 # Notify users anytime their password is changed
 $notify_on_change = false;
+# Get mail address directly from LDAP (only first mail entry)
+# # and hide mail input field
+$mail_address_use_ldap = {{LSSP_MAIL_FROM_LDAP}};
+# Auth
+$mail_smtp_host = '{{SMTP_HOST}}';
+$mail_smtp_auth = true;
+$mail_smtp_user = '{{SMTP_USER}}';
+$mail_smtp_pass = '{{SMTP_PASS}}';
+$mail_smtp_port = {{SMTP_PORT}};
+$mail_smtp_timeout = 30;
+$mail_smtp_keepalive = false;
+$mail_smtp_autotls = {{SMTP_TLS}};
 
 ## SMS
 # Use sms
@@ -164,13 +176,13 @@ $show_help = true;
 $lang ="en";
 
 # Logo
-$logo = "style/ltb-logo.png";
+$logo = "images/ltb-logo.png";
 
 # Debug mode
 $debug = false;
 
 # Encryption, decryption keyphrase
-$keyphrase = "secret";
+$keyphrase = "{{LSSP_KEYPHRASE}}";
 
 # Where to log password resets - Make sure apache has write permission
 # By default, they are logged in Apache log

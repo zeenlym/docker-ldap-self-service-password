@@ -12,7 +12,6 @@ appInit () {
 
   # configure postfix, dovecot and rsyslog
   configure_lssp
-  configure_mail
 }
 
 appStart () {

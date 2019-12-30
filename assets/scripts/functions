@@ -5,8 +5,7 @@ set -e
 DIST_SUFFIX='dist'
 
 FILE_VHOST_CONFIG='/etc/apache2/sites-available/self-service-password.conf'
-FILE_LSSP_CONFIG='/usr/share/self-service-password/conf/config.inc.php'
-FILE_MSMTP_CONFIG='/etc/msmtprc'
+FILE_LSSP_CONFIG='/usr/share/self-service-password/conf/config.inc.local.php'
 
 ## Replace placeholders with values
 # $1: file with placeholders to replace
@@ -50,8 +49,7 @@ finalize_parameters() {
     dc_string=${dc_string:1}
 
     LDAP_BASE="${dc_string}"
-    LDAP_HOST=${LDAP_PORT_389_TCP_ADDR}
-    LDAP_PORT=${LDAP_PORT_389_TCP_PORT}
+    LDAP_URL=ldap://${LDAP_PORT_389_TCP_ADDR}:${LDAP_PORT_389_TCP_PORT}
 
     # support for linked sameersbn/mysql image
     # Edit: Commented this line because override LDAP_USER variable at any time. This was relocated to env-default.
@@ -81,7 +79,7 @@ finalize_parameters() {
     # LDAP_USER="cn=admin,${LDAP_BASE}"
   fi
 
-  if [[ -z ${LDAP_HOST} ]]; then
+  if [[ -z ${LDAP_URL} ]]; then
     echo
     echo "ERROR: "
     echo "  Please configure the LDAP connection."
@@ -103,18 +101,18 @@ finalize_parameters() {
     echo "Enable MAIL"
     LSSP_MAIL_SUPPORT=true
 
+    LSSP_KEYPHRASE=${LDAP_KEYPHRASE:-}
+    if [ -z "${LSSP_KEYPHRASE}"]; then
+      LSSP_KEYPHRASE=$(pwgen -1 32)
+    fi
+
     # Enable Authentication, if Username and Password are provided
     if [[ -n ${SMTP_USER} && -n ${SMTP_PASS} ]]; then
       echo "  ... with AUTH"
-      SMTP_TYPE=auth
+      SMTP_USEAUTH=true
     else
       echo "  ... without AUTH"
-      SMTP_TYPE=noauth
-    fi
-
-    if [[ ${SMTP_TLS} != "on" && ${SMTP_TLS} != "off" ]]; then
-      echo "ERROR: SMTP_TLS must be \"on\" or \"off\""
-      return 1;
+      SMTP_USEAUTH=false
     fi
   else
     echo "Disable MAIL"
@@ -130,14 +128,24 @@ configure_lssp() {
   cp -v "${FILE_LSSP_CONFIG}.${DIST_SUFFIX}" "${FILE_LSSP_CONFIG}"
 
   update_template "${FILE_LSSP_CONFIG}" \
-    LDAP_HOST \
-    LDAP_PORT \
+    LDAP_URL \
     LDAP_USER \
     LDAP_PASS \
     LDAP_BASE \
+    LDAP_AD_MODE \
+    LDAP_STARTTLS \
     LSSP_ATTR_LOGIN LSSP_ATTR_FN LSSP_ATTR_MAIL \
     LSSP_HASH_METHOD \
+    LSSP_KEYPHRASE \
+    LSSP_MAIL_FROM_LDAP \
+    SMTP_USEAUTH \
     SMTP_FROM \
+    SMTP_HOST \
+    SMTP_PORT \
+    SMTP_USER \
+    SMTP_PASS \
+    SMTP_TLS \
+    SMTP_DOMAIN \
     LSSP_MAIL_SUPPORT \
     LSSP_DEFAULT_ACTION \
     RECAPTCHA_USE \
@@ -148,24 +156,5 @@ configure_lssp() {
 
   update_template "${FILE_VHOST_CONFIG}" \
     VIRTUAL_SUBDIR
-}
-
-configure_mail() {
-  if [[ -n ${SMTP_HOST} ]]; then
-    echo "Configuring MSMTP"
-
-    cp -v "${FILE_MSMTP_CONFIG}.${SMTP_TYPE}.${DIST_SUFFIX}" "${FILE_MSMTP_CONFIG}"
-
-    update_template "${FILE_MSMTP_CONFIG}" \
-      SERVER_HOSTNAME \
-      SMTP_HOST \
-      SMTP_PORT \
-      SMTP_USER \
-      SMTP_PASS \
-      SMTP_TLS \
-      SMTP_DOMAIN
-  else
-    echo "Mail Service not configured"
-  fi
 }
 

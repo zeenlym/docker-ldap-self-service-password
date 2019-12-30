@@ -47,6 +47,8 @@ LDAP Self-Service-Password (optional):
   - LDAP attribute for user's mail address (required for password-reset support)
 - `LSSP_DEFAULT_ACTION` (default: change)
   - LSSP default action for changing password (supported are `change`, `sendtoken` or `sendsms`)
+- `LSSP_MAIL_FROM_LDAP` (default: false)
+  - Don't ask for user's mail address. It will use the first address found in the corresponding user DN.
 
 OpenLDAP-Server (required):
 
@@ -55,12 +57,14 @@ OpenLDAP-Server (required):
   - Provide in dotted (`.`) notation (i.e. domain.com)
 - `LDAP_HOST` (default: empty)
   - LDAP-Server's hostname or IP-address
-- `LDAP_PORT` (default: 389)
-  - LDAP-Server's port
+- `LDAP_STARTTLS` (default: true)
+  - Use STARTTLS for connection to LDAP
 - `LDAP_USER` (default: `cn=admin,${LDAP_BASE}`)
   - Complete DN of the admin user, which is allowed to change user passwords.
 - `LDAP_PASS`
   - Password of the admin user
+- `LDAP_AD_MODE` (default: false)
+  - Enable support for Active Directory
 
 Mail-Server (optional):
 > If `SMTP_HOST` is not set, Password-Reset via Mail-Tokens will be disabled in the Web-Interface!
@@ -78,11 +82,8 @@ Mail-Server (optional):
   - If omitted, authentication is disabled
 - `SMTP_FROM` (default: `root(at)${SERVER_HOSTNAME}`)
   - The address from which the password notification is coming from
-- `SMTP_TLS` (default: off)
+- `SMTP_TLS` (default: true)
   - Enable TLS connection
-  - Possible Values:
-    - `on`: Enable TLS
-    - `off`: Disable TLS
 
 reCAPTCHA (optional):
 - `RECAPTCHA_USE` (default: false)

@@ -6,12 +6,11 @@ ENV SCRIPT_DIR /opt
 # Install Apache2, PHP and LTB ssp
 RUN apt-get update && \
     apt-get install -y \
-        msmtp sudo gettext-base \
+        sudo gettext-base wget pwgen \
         libldap2-dev \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libpng12-dev && \
+        libmcrypt-dev && \
     apt-get clean && \
     ln -fs /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/ && \
     docker-php-ext-install -j$(nproc) iconv mcrypt && \
@@ -19,18 +18,15 @@ RUN apt-get update && \
     docker-php-ext-install -j$(nproc) gd && \
     docker-php-ext-install ldap
 
-RUN curl http://tools.ltb-project.org/attachments/download/801/self-service-password_0.9-1_all.deb > self-service-password.deb && \
+RUN wget -O self-service-password.deb http://ltb-project.org/archives/self-service-password_1.3-1_all.deb && \
     dpkg -i --force-depends self-service-password.deb ; rm -f self-service-password.deb
 
 # Add LSSP's Apache-config for site
 ADD ["assets/config/apache2/vhost.conf", "/etc/apache2/sites-available/self-service-password.conf"]
 # Add LSSP's config template
-ADD ["assets/config/lssp/config.inc.php", "/usr/share/self-service-password/conf/config.inc.php.dist"]
+ADD ["assets/config/lssp/config.inc.php", "/usr/share/self-service-password/conf/config.inc.local.php.dist"]
 # Add MSMTP's config for PHP
-ADD ["assets/config/php/php-sendmail.ini", "/usr/local/etc/php/conf.d"]
-# Add MSMTP's config
-ADD ["assets/config/msmtp/msmtprc.noauth", "/etc/msmtprc.noauth.dist"]
-ADD ["assets/config/msmtp/msmtprc.auth", "/etc/msmtprc.auth.dist"]
+#ADD ["assets/config/php/php-sendmail.ini", "/usr/local/etc/php/conf.d"]
 
 # Enable LSSP in Apache Web-Server
 RUN a2dissite 000-default && \
