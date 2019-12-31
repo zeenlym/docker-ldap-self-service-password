@@ -49,6 +49,8 @@ LDAP Self-Service-Password (optional):
   - LSSP default action for changing password (supported are `change`, `sendtoken` or `sendsms`)
 - `LSSP_MAIL_FROM_LDAP` (default: false)
   - Don't ask for user's mail address. It will use the first address found in the corresponding user DN.
+- `LSSP_SHOW_MENU` (default: true)
+  - Show menu on top of the page
 
 OpenLDAP-Server (required):
 

@@ -211,6 +211,8 @@ $recaptcha_ssl = {{RECAPTCHA_SSL}};
 # sendsms
 $default_action = "{{LSSP_DEFAULT_ACTION}}";
 
+$show_menu = {{LSSP_SHOW_MENU}};
+
 ## Extra messages
 # They can also be defined in lang/ files
 #$messages['passwordchangedextramessage'] = NULL;

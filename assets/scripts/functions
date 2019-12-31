@@ -104,6 +104,7 @@ finalize_parameters() {
     LSSP_KEYPHRASE=${LDAP_KEYPHRASE:-}
     if [ -z "${LSSP_KEYPHRASE}"]; then
       LSSP_KEYPHRASE=$(pwgen -1 32)
+      echo "  ... generated temporary keyphrase"
     fi
 
     # Enable Authentication, if Username and Password are provided
@@ -138,6 +139,7 @@ configure_lssp() {
     LSSP_HASH_METHOD \
     LSSP_KEYPHRASE \
     LSSP_MAIL_FROM_LDAP \
+    LSSP_SHOW_MENU \
     SMTP_USEAUTH \
     SMTP_FROM \
     SMTP_HOST \
